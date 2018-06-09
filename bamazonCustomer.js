@@ -9,8 +9,6 @@ var connection = mysql.createConnection({ //connection to mysql database
     database: "bamazon_db"
 });
 
-//console.log(mysql)
-//console.log(connection)
 
 connection.connect(function(err) {
     if (err) throw err;
@@ -23,11 +21,11 @@ function showProducts() { //display ID, name, & price of all items for sale ... 
     console.log("Selecting all products...\n"); //works!!!!
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
-        console.log(res);
+        //console.log(res);
         for (i=0; i<res.length; i++) {
-            console.log(res[i].item_id + "\n");
-            console.log(res[i].product_name + "\n");
-            console.log(res[i].price + "\n");
+            console.log("ID: " + res[i].item_id);
+            console.log("Name: " + res[i].product_name);
+            console.log("Price: $" + res[i].price + "\n");
         //connection.end();
         }
     });
@@ -36,7 +34,6 @@ function showProducts() { //display ID, name, & price of all items for sale ... 
 var count = 0;
 
 function inquirerPrompt() {
-    console.log("count is " + count); //WHY UNDEFINED??????????????????
     if (count <2 ) {
         //return callback;
         inquirer.prompt([ //run prompt
