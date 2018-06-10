@@ -23,9 +23,8 @@ function showProducts(callback) { //display ID, name, & price of all items for s
 }
 
 
-
 function inquirerPrompt() {
-        inquirer.prompt([ //run prompt
+        inquirer.prompt([
             {
                 type: "input",
                 message: "What is the ID of the item you'd like to purchase?",
@@ -42,16 +41,19 @@ function inquirerPrompt() {
             connection.query("SELECT * FROM products WHERE item_id = ?", searchedId, function(err, res) {
                 //if (err) throw err;
                 if (!res[0]) {
-                    console.log("Please enter a valid ID.") //NEED OPTION TO RE-ENTER ID!!!!!!!!!!!!!!!!!!!!!!
+                    console.log("Please enter a valid ID.");
+                    inquirerPrompt(); //NEED OPTION TO RE-ENTER ID!!!!!!!!!!!!!! re-run function?????????
                 } else {
                     var price = parseInt(res[0].price);
                     var stock_quantity = parseInt(res[0].stock_quantity);
                     if ((requestedQuantity < 1 ) || (Number.isInteger(requestedQuantity) != true)) { //make sure quantity user entered is valid and > 0
-                        console.log("Please enter a valid quantity."); //NEED OPTION TO RE-ENTER QUANTITY!!!!!!!!!!!!!!!
+                        console.log("Please enter a valid quantity.");
+                        inquirerPrompt(); //NEED OPTION TO RE-ENTER QUANTITY!!! re-run function????????????
                     } else {
                         function checkQuantity() { 
                             if ((stock_quantity - requestedQuantity) < 1) {
-                                console.log("Insufficient quantity!")
+                                console.log("Insufficient quantity!");
+                                inquirerPrompt(); //NEED OPTION TO CHOOSE NEW ID!!!!!!!!!! re-run function?????
                             } else {
                                 console.log("The price is $" + price + ".");
                                 function placeOrder() { 
@@ -62,10 +64,10 @@ function inquirerPrompt() {
                                         connection.query(
                                             "UPDATE products SET stock_quantity = " + newQuantity + " " + "WHERE item_id = " + searchedId
                                         )
+                                        console.log(newQuantity);
                                     }
                                     updateQuantity();
-                                    console.log(newQuantity); ////////////////////////////////
-                                }
+                                } //would you like to buy another item????????????????????????
                                 placeOrder();
                             }
                         }
