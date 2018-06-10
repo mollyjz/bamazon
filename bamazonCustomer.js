@@ -1,7 +1,7 @@
 var inquirer = require("inquirer");
 var mysql = require("mysql");
 
-var connection = mysql.createConnection({ //connection to mysql database
+var connection = mysql.createConnection({ //create connection to mysql db
     host: "localhost",
     port: 3306,
     user: "root",
@@ -10,103 +10,76 @@ var connection = mysql.createConnection({ //connection to mysql database
 });
 
 
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("connected as id " + connection.threadId + "\n"); //works!!!!
-    showProducts(); //once connection is established, display available products
-});
-
-
-function showProducts() { //display ID, name, & price of all items for sale ... IF QUANTITY < 1, "OUT OF STOCK?"
-    console.log("Selecting all products...\n"); //works!!!!
+function showProducts(callback) { //display ID, name, & price of all items for sale
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
-        //console.log(res);
         for (i=0; i<res.length; i++) {
             console.log("ID: " + res[i].item_id);
             console.log("Name: " + res[i].product_name);
             console.log("Price: $" + res[i].price + "\n");
-        //connection.end();
         }
+        callback();
     });
 }
 
-var count = 0;
+
 
 function inquirerPrompt() {
-    if (count <2 ) {
-        //return callback;
         inquirer.prompt([ //run prompt
             {
                 type: "input",
                 message: "What is the ID of the item you'd like to purchase?",
                 name: "searchedId"
-            }, //script ends after this is shown, doesn't wait for me to answer -- goes to connected as id ...
+            },
             {
                 type: "input",
                 message: "How many would you like to buy?",
                 name: "requestedQuantity"
             }
-        ]).then (function(inquirerResponse, error) {
-            //console.log(error)
-            console.log("hey"); //doesn't get this far!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            console.log(inquirerResponse);
-            count++;
-            inquirerPrompt();
-            //var query = "SELECT * FROM products";
-            //console.log(query);
-            connection.query("SELECT * FROM products", function(err, res) {
-                if (err) throw err;
-                console.log(res);
-                var searchedId = inquirerResponse.searchedId;
-                var requestedQuantity = inquirerResponse.requestedQuantity;
-                    for (i=0; i<res.length; i++) { //should this all really be inside a for-loop????????????????
-                        var item_id = res[i].item_id; //check to see if id entered by user matches id of product in DB
-                        var price = res[i].price;
-                        var stock_quantity = res[i].stock_quantity;
-                        if (item_id == searchedId) { //if it does...
-                            console.log("The price is $" + price + " .");//display price
-                    //need prompt to confirm they want to buy the item once price is displayed?
-                
-                            if ((requestedQuantity < 1 ) || (Number.isInteger(requestedQuantity) != true)) { //make sure quantity user entered is valid and > 0
-                                //return error;
-                                console.log("Please enter a valid quantity.");
-                            };
-
-                            //if valid quantity requested, check quantity remaining in DB
-                            function checkQuantity() { //need to pass in any arguments??????????? callbacks??
-                                if ((stock_quantity - requestedQuantity) < 1) { //error message if not enough of item left
-                                    console.log("Insufficient quantity!")
-                                } 
-                        //otherwise, place order
+        ]).then (function(inquirerResponse, err) {
+            var searchedId = parseInt(inquirerResponse.searchedId);
+            var requestedQuantity = parseInt(inquirerResponse.requestedQuantity);
+            connection.query("SELECT * FROM products WHERE item_id = ?", searchedId, function(err, res) {
+                //if (err) throw err;
+                if (!res[0]) {
+                    console.log("Please enter a valid ID.") //NEED OPTION TO RE-ENTER ID!!!!!!!!!!!!!!!!!!!!!!
+                } else {
+                    var price = parseInt(res[0].price);
+                    var stock_quantity = parseInt(res[0].stock_quantity);
+                    if ((requestedQuantity < 1 ) || (Number.isInteger(requestedQuantity) != true)) { //make sure quantity user entered is valid and > 0
+                        console.log("Please enter a valid quantity."); //NEED OPTION TO RE-ENTER QUANTITY!!!!!!!!!!!!!!!
+                    } else {
+                        function checkQuantity() { 
+                            if ((stock_quantity - requestedQuantity) < 1) {
+                                console.log("Insufficient quantity!")
+                            } else {
+                                console.log("The price is $" + price + ".");
                                 function placeOrder() { 
                                     var moneySpent = (requestedQuantity * price);
                                     console.log("You've spent " + moneySpent + " dollars.")
-                                    //need array of prices, then sum of it??
-                                    function updateQuantity() { //update quantity remaining in database
+                                    function updateQuantity() { //update quantity remaining in database - OK????????????????
                                         var newQuantity = (stock_quantity - requestedQuantity);
-                                    //need to connect to mysql again or no? NO???? 
                                         connection.query(
                                             "UPDATE products SET stock_quantity = " + newQuantity + " " + "WHERE item_id = " + searchedId
                                         )
                                     }
-                            
-                                updateQuantity(); //update quantity remaining
+                                    updateQuantity();
+                                    console.log(newQuantity); ////////////////////////////////
+                                }
+                                placeOrder();
                             }
-                        
-                        placeOrder(); //place order, update quantity remaining
-                        //DOES THIS NESTING EVEN MAKE SENSE??????????????????????????
+                        }
+                        checkQuantity();
                     }
-
-                checkQuantity(); //check quantity, place order, update quantity remaining
-
-            }
-            //connection.end();
-        }
-    
+                }
     });
-        
+    });
+}
+
+
+connection.connect(function(err) {
+    if (err) throw err;
+    console.log("connected as id " + connection.threadId + "\n");
+    showProducts(inquirerPrompt); //once connection is established, display available products
+    //connection.end();
 });
-}
-}
-inquirerPrompt();
