@@ -6,16 +6,16 @@
 ## Demo Screenshots
 
 #### The following intro screen loads when the app is initiated:
-![Intro screen](/images/intro-screen.png)
+![Intro screen](/images/intro-screen.PNG)
 
 #### The following screen loads when an order is placed successfully:
-![Order placed](/images/order-placed.png)
+![Order placed](/images/order-placed.PNG)
 
 #### Error message is displayed when an incorrect product ID is entered:
-![Incorrect ID](/images/invalid-id.png)
+![Incorrect ID](/images/invalid-id.PNG)
 
 #### Error message is displayed when an invalid quantity is entered:
-![Invalid quantity](/images/invalid-quantity.png)
+![Invalid quantity](/images/invalid-quantity.PNG)
 
 #### Error message loads when the selected product is out of stock:
-![Insufficient stock](/images/insuff-quantity.png)
+![Insufficient stock](/images/insuff-quantity.PNG)
