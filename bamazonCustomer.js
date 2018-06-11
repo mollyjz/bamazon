@@ -1,7 +1,7 @@
 var inquirer = require("inquirer");
 var mysql = require("mysql");
 
-var connection = mysql.createConnection({ //create connection to mysql db
+var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
@@ -10,7 +10,7 @@ var connection = mysql.createConnection({ //create connection to mysql db
 });
 
 
-function showProducts(callback) { //display ID, name, & price of all items for sale
+function showProducts(callback) {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         for (i=0; i<res.length; i++) {
@@ -39,35 +39,34 @@ function inquirerPrompt() {
             var searchedId = parseInt(inquirerResponse.searchedId);
             var requestedQuantity = parseInt(inquirerResponse.requestedQuantity);
             connection.query("SELECT * FROM products WHERE item_id = ?", searchedId, function(err, res) {
-                //if (err) throw err;
+                if (err) throw err;
                 if (!res[0]) {
                     console.log("Please enter a valid ID.");
-                    inquirerPrompt(); //NEED OPTION TO RE-ENTER ID!!!!!!!!!!!!!! re-run function?????????
+                    inquirerPrompt();
                 } else {
                     var price = parseInt(res[0].price);
                     var stock_quantity = parseInt(res[0].stock_quantity);
-                    if ((requestedQuantity < 1 ) || (Number.isInteger(requestedQuantity) != true)) { //make sure quantity user entered is valid and > 0
+                    if ((requestedQuantity < 1 ) || (Number.isInteger(requestedQuantity) != true)) {
                         console.log("Please enter a valid quantity.");
-                        inquirerPrompt(); //NEED OPTION TO RE-ENTER QUANTITY!!! re-run function????????????
+                        inquirerPrompt();
                     } else {
                         function checkQuantity() { 
                             if ((stock_quantity - requestedQuantity) < 1) {
                                 console.log("Insufficient quantity!");
-                                inquirerPrompt(); //NEED OPTION TO CHOOSE NEW ID!!!!!!!!!! re-run function?????
+                                inquirerPrompt();
                             } else {
                                 console.log("The price is $" + price + ".");
                                 function placeOrder() { 
                                     var moneySpent = (requestedQuantity * price);
                                     console.log("You've spent " + moneySpent + " dollars.")
-                                    function updateQuantity() { //update quantity remaining in database - OK????????????????
+                                    function updateQuantity() {
                                         var newQuantity = (stock_quantity - requestedQuantity);
                                         connection.query(
                                             "UPDATE products SET stock_quantity = " + newQuantity + " " + "WHERE item_id = " + searchedId
                                         )
-                                        console.log(newQuantity);
                                     }
                                     updateQuantity();
-                                } //would you like to buy another item????????????????????????
+                                } //ADD -- would you like to buy another item????????????????????????
                                 placeOrder();
                             }
                         }
@@ -83,5 +82,4 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId + "\n");
     showProducts(inquirerPrompt); //once connection is established, display available products
-    //connection.end();
 });
