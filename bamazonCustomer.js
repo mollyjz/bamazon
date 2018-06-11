@@ -1,7 +1,7 @@
 var inquirer = require("inquirer");
 var mysql = require("mysql");
 
-var connection = mysql.createConnection({
+var connection = mysql.createConnection({ //create mysql connection
     host: "localhost",
     port: 3306,
     user: "root",
@@ -10,7 +10,7 @@ var connection = mysql.createConnection({
 });
 
 
-function showProducts(callback) {
+function showProducts(callback) { //display available products
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         for (i=0; i<res.length; i++) {
@@ -64,6 +64,7 @@ function inquirerPrompt() {
                                         connection.query(
                                             "UPDATE products SET stock_quantity = " + newQuantity + " " + "WHERE item_id = " + searchedId
                                         )
+                                    //console.log(newQuantity);
                                     }
                                     updateQuantity();
                                 } //ADD -- would you like to buy another item????????????????????????
